@@ -1,0 +1,10 @@
+node_modules/
+ALL_CODE_DUMP.txt
+FULL_CODE_EXPORT.txt
+dist/
+client/node_modules/
+client/dist/
+.env
+*.log
+data/*.db
+data/*.db-*

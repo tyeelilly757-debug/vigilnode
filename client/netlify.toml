@@ -1,0 +1,9 @@
+[build]
+  command = "npm run build"
+  publish = "dist"
+
+# SPA fallback — Netlify still resolves real files under publish/ (e.g. dist/ai/*.html) before these rules.
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200

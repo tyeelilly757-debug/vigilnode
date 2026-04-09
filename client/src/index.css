@@ -1,0 +1,46 @@
+:root {
+  font-family: system-ui, sans-serif;
+  background: #0a0a0b;
+  color: #e8e8ea;
+  line-height: 1.5;
+}
+* {
+  box-sizing: border-box;
+}
+body {
+  margin: 0;
+}
+a {
+  color: #5eead4;
+}
+
+/* Learning dashboard: trend chip fade + pulse on update */
+.lm-trend-chip {
+  display: inline-block;
+  transition: opacity 0.3s ease, transform 0.3s ease, color 0.3s ease;
+  animation: lm-trend-pulse 0.65s ease;
+}
+
+@keyframes lm-trend-pulse {
+  0% {
+    opacity: 0.35;
+    transform: scale(0.94);
+  }
+  45% {
+    opacity: 1;
+    transform: scale(1.05);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.lm-intent-focus {
+  border-color: rgba(45, 212, 191, 0.55) !important;
+  box-shadow:
+    0 0 0 1px rgba(45, 212, 191, 0.25),
+    0 8px 28px -8px rgba(13, 148, 136, 0.45);
+  transform: scale(1.02);
+  z-index: 1;
+}

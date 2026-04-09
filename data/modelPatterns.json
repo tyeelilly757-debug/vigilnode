@@ -1,0 +1,5 @@
+{
+  "version": "1",
+  "notes": "Optional hooks for response-shape priors (list-heavy, citation-heavy, etc.). Extend as you profile models.",
+  "patterns": []
+}
