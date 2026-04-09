@@ -1,0 +1,30 @@
+# Pushes to `main` → deploy `client/` to the linked Vercel project.
+#
+# Add secrets on GitHub: Settings → Secrets → Actions
+#   VERCEL_TOKEN       https://vercel.com/account/tokens
+#   VERCEL_ORG_ID      value of `orgId` in client/.vercel/project.json
+#   VERCEL_PROJECT_ID  value of `projectId` in client/.vercel/project.json
+#
+# In Vercel (that project): set SKIP_AI_PAGE_GENERATE=1 so CI builds without API keys,
+# and ensure Root Directory = `client` (or this action’s working-directory matches).
+name: Deploy client to Vercel
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch: {}
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Deploy to Vercel
+        uses: amondnet/vercel-action@v25
+        with:
+          vercel-token: ${{ secrets.VERCEL_TOKEN }}
+          vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
+          vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID }}
+          working-directory: client
+          vercel-args: "--prod"
