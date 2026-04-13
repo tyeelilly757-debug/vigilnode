@@ -23,7 +23,8 @@
     "oauth:youtube": "tsx scripts/oauthYoutubeCli.ts",
     "setup:check": "tsx scripts/verifyFullSetupCli.ts",
     "setup": "npm run setup:check",
-    "content:houston-exclusive-fadez": "tsx scripts/generateExclusiveFadezHoustonCluster.ts"
+    "content:houston-exclusive-fadez": "tsx scripts/generateExclusiveFadezHoustonCluster.ts",
+    "seed:exclusive-fadez-houston": "tsx scripts/seedExclusiveFadezHouston.ts"
   },
   "dependencies": {
     "axios": "^1.6.8",
