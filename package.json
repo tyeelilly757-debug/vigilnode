@@ -15,7 +15,15 @@
     "proof:clients": "tsx src/outcomes/clientProofCli.ts",
     "send:reports": "tsx src/outcomes/sendAllReports.ts",
     "run:clients": "tsx src/automation/runAll.ts",
-    "run:clients:schedule": "tsx src/automation/scheduleClients.ts"
+    "run:runner": "tsx src/runner.ts",
+    "run:clients:schedule": "tsx src/automation/scheduleClients.ts",
+    "schedule:targets": "tsx scripts/runScheduledTargetsCli.ts",
+    "video:cli": "tsx src/video/cli.ts",
+    "oauth:reddit": "tsx scripts/oauthRedditCli.ts",
+    "oauth:youtube": "tsx scripts/oauthYoutubeCli.ts",
+    "setup:check": "tsx scripts/verifyFullSetupCli.ts",
+    "setup": "npm run setup:check",
+    "content:houston-exclusive-fadez": "tsx scripts/generateExclusiveFadezHoustonCluster.ts"
   },
   "dependencies": {
     "axios": "^1.6.8",
