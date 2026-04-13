@@ -24,6 +24,8 @@
     "setup:check": "tsx scripts/verifyFullSetupCli.ts",
     "setup": "npm run setup:check",
     "content:houston-exclusive-fadez": "tsx scripts/generateExclusiveFadezHoustonCluster.ts",
+    "content:houston-barber-cluster": "tsx scripts/generateHoustonBarberCluster.ts",
+    "content:md-to-ai-html": "tsx scripts/publishMarkdownClusterToAiHtml.ts",
     "seed:exclusive-fadez-houston": "tsx scripts/seedExclusiveFadezHouston.ts"
   },
   "dependencies": {
