@@ -26,6 +26,7 @@
     "content:houston-exclusive-fadez": "tsx scripts/generateExclusiveFadezHoustonCluster.ts",
     "content:houston-barber-cluster": "tsx scripts/generateHoustonBarberCluster.ts",
     "content:md-to-ai-html": "tsx scripts/publishMarkdownClusterToAiHtml.ts",
+    "seo:sitemap": "tsx scripts/generateSitemapAndRobots.ts",
     "seed:exclusive-fadez-houston": "tsx scripts/seedExclusiveFadezHouston.ts"
   },
   "dependencies": {
