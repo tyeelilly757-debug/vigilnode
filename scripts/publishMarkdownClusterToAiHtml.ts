@@ -5,7 +5,11 @@
  *   npx tsx scripts/publishMarkdownClusterToAiHtml.ts --max=15
  *   SITE_PUBLIC_BASE=https://exclusivefadez.vercel.app npx tsx scripts/publishMarkdownClusterToAiHtml.ts --max=20
  *
- * Optional: --dir=external-github --strategy=spread|first
+ * Prefer matching the barber cluster bucket mix:
+ *   --use-cluster-manifest  (reads external-github/.last-houston-cluster-slugs.txt)
+ *   --manifest=path/to/slugs.txt  (one slug per line, no .md)
+ *
+ * Without a manifest, --strategy=spread walks the alphabet (often skews to one prefix).
  */
 import fs from "node:fs";
 import path from "node:path";
@@ -171,10 +175,16 @@ ${opts.bodyHtml}
 `;
 }
 
-function parseArgs(): { max: number; dir: string; strategy: "spread" | "first" } {
+function parseArgs(): {
+  max: number;
+  dir: string;
+  strategy: "spread" | "first";
+  manifestPath: string | null;
+} {
   let max = 15;
   let dir = "external-github";
   let strategy: "spread" | "first" = "spread";
+  let manifestPath: string | null = null;
   for (const a of process.argv) {
     const m = /^--max=(\d+)$/.exec(a);
     if (m) max = Math.min(500, Math.max(1, Number(m[1])));
@@ -182,8 +192,24 @@ function parseArgs(): { max: number; dir: string; strategy: "spread" | "first" }
     if (d) dir = d[1]!.trim();
     const s = /^--strategy=(spread|first)$/.exec(a);
     if (s) strategy = s[1] as "spread" | "first";
+    const man = /^--manifest=(.+)$/.exec(a);
+    if (man) manifestPath = man[1]!.trim();
+    if (a === "--use-cluster-manifest") manifestPath = "external-github/.last-houston-cluster-slugs.txt";
   }
-  return { max, dir, strategy };
+  return { max, dir, strategy, manifestPath };
+}
+
+function readManifestSlugs(manifestPath: string, cwd: string): string[] {
+  const abs = path.isAbsolute(manifestPath) ? manifestPath : path.join(cwd, manifestPath);
+  if (!fs.existsSync(abs)) {
+    console.error(`Manifest not found: ${abs}`);
+    process.exit(1);
+  }
+  return fs
+    .readFileSync(abs, "utf8")
+    .split(/\r?\n/)
+    .map((l) => l.trim())
+    .filter((l) => l.length > 0 && !l.startsWith("#"));
 }
 
 function pickFiles(files: string[], max: number, strategy: "spread" | "first"): string[] {
@@ -203,10 +229,10 @@ function pickFiles(files: string[], max: number, strategy: "spread" | "first"): 
 }
 
 function main(): void {
-  const { max, dir, strategy } = parseArgs();
+  const { max, dir, strategy, manifestPath } = parseArgs();
   const mdDir = path.isAbsolute(dir) ? dir : path.join(process.cwd(), dir);
   const outDir = path.join(process.cwd(), "client", "public", "ai");
-   let publicBase = process.env.SITE_PUBLIC_BASE?.trim();
+  let publicBase = process.env.SITE_PUBLIC_BASE?.trim();
   if (!publicBase) {
     const v = process.env.VERCEL_URL?.trim();
     publicBase = v ? (v.startsWith("http") ? v : `https://${v}`) : "https://exclusivefadez.vercel.app";
@@ -219,12 +245,25 @@ function main(): void {
   }
   fs.mkdirSync(outDir, { recursive: true });
 
-  const allMd = fs
-    .readdirSync(mdDir)
-    .filter((f) => f.endsWith(".md"))
-    .sort((a, b) => a.localeCompare(b));
+  let chosen: string[];
+  if (manifestPath) {
+    const slugs = readManifestSlugs(manifestPath, process.cwd()).slice(0, max);
+    chosen = [];
+    for (const slug of slugs) {
+      const file = `${slug}.md`;
+      const mdPath = path.join(mdDir, file);
+      if (fs.existsSync(mdPath)) chosen.push(file);
+      else console.warn(`[warn] manifest slug missing on disk, skip: ${file}`);
+    }
+    console.log(`Using manifest (${manifestPath}): ${chosen.length} markdown files`);
+  } else {
+    const allMd = fs
+      .readdirSync(mdDir)
+      .filter((f) => f.endsWith(".md"))
+      .sort((a, b) => a.localeCompare(b));
+    chosen = pickFiles(allMd, max, strategy);
+  }
 
-  const chosen = pickFiles(allMd, max, strategy);
   let wrote = 0;
 
   for (const file of chosen) {
@@ -243,8 +282,17 @@ function main(): void {
     wrote++;
   }
 
+  const slugList = chosen.map((f) => f.replace(/\.md$/i, ""));
+  const publishManifestPath = path.join(process.cwd(), "client", "public", ".last-ai-publish-slugs.txt");
+  fs.writeFileSync(publishManifestPath, `${slugList.join("\n")}\n`, "utf8");
+
   console.log(`Wrote ${wrote} HTML files to client/public/ai/ (canonical base: ${publicBase})`);
-  console.log("Slugs:", chosen.map((f) => f.replace(/\.md$/i, "")).join(", "));
+  console.log(`Manifest: ${publishManifestPath}`);
+  if (slugList.length <= 40) {
+    console.log("Slugs:", slugList.join(", "));
+  } else {
+    console.log(`Slugs (first 15): ${slugList.slice(0, 15).join(", ")} … (+${slugList.length - 15} more)`);
+  }
 }
 
 main();
